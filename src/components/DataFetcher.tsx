@@ -1,0 +1,53 @@
+import { useState, useEffect } from "react";
+import  Axios  from 'axios';
+
+
+type UserType = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  username: string;
+  website: string;
+};
+
+export default function User() {
+    const [user, setUser] = useState<UserType | null >(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('')
+  
+    useEffect (() => {
+        let isMounted = true;
+        const loadUser = async () => {
+        try {
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        const response = await Axios.get('https://jsonplaceholder.typicode.com/users/1');
+        if (isMounted) setUser(response.data);
+        }  catch {
+        if (isMounted) setError("Error loading user");
+        }  finally {
+        if (isMounted) setLoading(false);
+        }
+    }
+        loadUser();
+
+        return () => {
+            isMounted = false;
+        }
+    }, []);
+
+    if (error) return <h1>{error}</h1>
+    if (loading) return <h1>Loading...</h1>
+    if (!user) return null;
+
+    return (
+        <div>
+        <h2>User data:</h2>
+        <p><strong>Name:</strong> {user.name}</p>
+        <p><strong>Email:</strong> {user.email}</p>
+        <p><strong>Phone:</strong> {user.phone}</p>
+        <p><strong>Username:</strong> {user.username}</p>
+        <p><strong>Website:</strong> {user.website}</p>
+        </div>
+    );
+};
